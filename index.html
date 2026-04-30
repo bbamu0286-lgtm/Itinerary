@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Planner</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;color:#333}
+  .container{max-width:1200px;margin:0 auto}
+  header{background:white;border-radius:16px;padding:24px 32px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+  h1{font-size:28px;color:#4a5568;display:flex;align-items:center;gap:12px}
+  h1::before{content:"✈️";font-size:32px}
+  .subtitle{color:#718096;margin-top:6px;font-size:14px}
+  .sync-status{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+  .sync-status.connected{background:#c6f6d5;color:#22543d}
+  .sync-status.connecting{background:#feebc8;color:#7b341e}
+  .sync-status.error{background:#fed7d7;color:#742a2a}
+  .summary-title{margin-top:20px;font-size:14px;color:#4a5568;font-weight:600}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px}
+  .summary-card{background:linear-gradient(135deg,#f6f9fc 0%,#edf2f7 100%);padding:14px;border-radius:12px;border-left:4px solid #667eea}
+  .summary-card.move{border-left-color:#3182ce}
+  .summary-card.sight{border-left-color:#dd6b20}
+  .summary-card.meal{border-left-color:#38a169}
+  .summary-card.total{border-left-color:#e53e3e}
+  .summary-card .label{font-size:11px;color:#718096;margin-bottom:4px}
+  .summary-card .value{font-size:18px;font-weight:700;color:#2d3748}
+  .layout{display:grid;grid-template-columns:1fr 380px;gap:20px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}}
+  .timeline-section,.form-section{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+  .section-title{font-size:18px;color:#2d3748;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
+  .date-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:8px}
+  .date-tab{flex-shrink:0;padding:10px 14px;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#4a5568;transition:all 0.2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
+  .date-tab:hover{border-color:#667eea;color:#667eea}
+  .date-tab.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-color:transparent}
+  .date-tab .tab-day{font-weight:700;font-size:14px}
+  .date-tab .tab-date{font-size:11px;opacity:0.85}
+  .day-group{margin-bottom:28px;scroll-margin-top:20px}
+  .day-header{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:12px 18px;border-radius:12px;margin-bottom:16px;font-weight:600;flex-wrap:wrap}
+  .day-header .day-num{background:white;color:#667eea;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700}
+  .day-header .day-stats{margin-left:auto;font-size:13px;opacity:0.95;font-weight:400}
+  .timeline{position:relative}
+  .timeline-item{position:relative;padding-left:40px;margin-left:12px}
+  .timeline-item .dot{position:absolute;left:-1px;top:6px;width:24px;height:24px;border-radius:50%;background:#667eea;border:4px solid white;box-shadow:0 0 0 2px #667eea;z-index:2}
+  .card{background:#f7fafc;border-radius:12px;padding:16px;border:1px solid #e2e8f0;margin-bottom:0}
+  .route-lines{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .route-line{display:flex;align-items:center;gap:8px;font-size:15px;color:#2d3748}
+  .route-line .icon{font-size:16px}
+  .route-line .verb{color:#718096;font-size:13px;margin-left:4px}
+  .info-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:12px;background:white;border:1px solid #e2e8f0;color:#4a5568}
+  .badge.depart{background:#faf5ff;color:#6b46c1;border-color:#e9d8fd}
+  .badge.sightTime{background:#fff5f7;color:#b83280;border-color:#fbb6ce}
+  .badge.sightFee{background:#fffaf0;color:#c05621;border-color:#fbd38d}
+  .badge.mealFee{background:#f0fff4;color:#276749;border-color:#c6f6d5}
+  .travel-info{margin-left:11px;border-left:3px dashed #a0aec0;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#4a5568;background:transparent}
+  .travel-info .t-item{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:white;border:1px solid #e2e8f0;border-radius:6px}
+  .travel-info .t-sep{color:#cbd5e0}
+  .actions{margin-top:10px;display:flex;gap:8px}
+  .btn-small{padding:4px 10px;font-size:12px;border:none;border-radius:6px;cursor:pointer}
+  .btn-edit{background:#4299e1;color:white}
+  .btn-delete{background:#fc8181;color:white}
+  .form-group{margin-bottom:14px}
+  label{display:block;font-size:13px;font-weight:600;color:#4a5568;margin-bottom:5px}
+  label .optional{color:#a0aec0;font-weight:400;font-size:11px;margin-left:4px}
+  input,select,textarea{width:100%;padding:8px 12px;border:1px solid #cbd5e0;border-radius:8px;font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+  textarea{resize:vertical;min-height:60px}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .transport-toggle{display:flex;gap:4px;margin-bottom:6px;background:#edf2f7;padding:3px;border-radius:8px}
+  .transport-toggle button{flex:1;padding:5px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:12px;color:#718096}
+  .transport-toggle button.active{background:white;color:#667eea;font-weight:600}
+  .fee-row{display:flex;gap:6px;align-items:center}
+  .fee-row input{flex:1}
+  .person-toggle{display:inline-flex;background:#edf2f7;padding:2px;border-radius:6px;flex-shrink:0}
+  .person-toggle button{padding:4px 10px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:11px;color:#718096}
+  .person-toggle button.active{background:white;color:#667eea;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
+  .btn{width:100%;padding:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+  .btn-secondary{background:#e2e8f0;color:#4a5568}
+  .empty{text-align:center;padding:40px 20px;color:#a0aec0}
+  .empty .icon{font-size:48px;margin-bottom:12px}
+  .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .toolbar button{padding:8px 14px;background:white;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;color:#4a5568}
+  .toolbar button:hover{background:#f7fafc;border-color:#667eea;color:#667eea}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Trip Planner</h1>
+    <div class="subtitle">二人で共有できる旅行日程ビジュアライザー</div>
+    <div id="sync-status" class="sync-status connecting">⏳ 接続中...</div>
+    <div class="summary-title" id="summary-title">📊 全日程のサマリー</div>
+    <div class="summary" id="summary"></div>
+  </header>
+  <div class="layout">
+    <div class="timeline-section">
+      <div class="section-title">🗺️ Timeline</div>
+      <div class="date-tabs" id="date-tabs"></div>
+      <div class="toolbar">
+        <button onclick="loadSample()">📋 サンプル読み込み</button>
+        <button onclick="exportJSON()">💾 エクスポート</button>
+        <button onclick="clearAll()">🗑️ 全削除</button>
+      </div>
+      <div id="timeline"></div>
+    </div>
+    <div class="form-section">
+      <div class="section-title" id="form-title">➕ 新しい行程を追加</div>
+      <form id="trip-form" onsubmit="addOrUpdate(event)">
+        <input type="hidden" id="edit-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>📅 日付<span class="optional">（任意）</span></label>
+            <input type="date" id="date">
+          </div>
+          <div class="form-group">
+            <label>🕐 行動時刻<span class="optional">（任意）</span></label>
+            <input type="time" id="departTime">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>🚩 集合場所<span class="optional">（任意）</span></label>
+          <input type="text" id="gather">
+        </div>
+        <div class="form-group">
+          <label>🛫 出発地<span class="optional">（任意）</span></label>
+          <input type="text" id="from">
+        </div>
+        <div class="form-group">
+          <label>🛬 到着地<span class="optional">（任意）</span></label>
+          <input type="text" id="to">
+        </div>
+        <div class="form-group">
+          <label>🏨 滞在地<span class="optional">（任意）</span></label>
+          <input type="text" id="stay">
+        </div>
+        <div class="form-group">
+          <label>📍 観光場所<span class="optional">（任意・改行で複数）</span></label>
+          <textarea id="sights"></textarea>
+        </div>
+        <div class="form-group">
+          <label>🚄 移動手段<span class="optional">（任意）</span></label>
+          <div class="transport-toggle">
+            <button type="button" id="toggle-select" class="active" onclick="switchTransport('select')">選択</button>
+            <button type="button" id="toggle-input" onclick="switchTransport('input')">自由入力</button>
+          </div>
+          <select id="transportSelect">
+            <option value="">（選択しない）</option>
+            <option value="🚄 新幹線">🚄 新幹線</option>
+            <option value="✈️ 飛行機">✈️ 飛行機</option>
+            <option value="🚗 車">🚗 車</option>
+            <option value="🚌 バス">🚌 バス</option>
+            <option value="🚆 電車">🚆 電車</option>
+            <option value="🚢 船">🚢 船</option>
+            <option value="🚶 徒歩">🚶 徒歩</option>
+            <option value="🚕 タクシー">🚕 タクシー</option>
+            <option value="🚲 自転車">🚲 自転車</option>
+          </select>
+          <input type="text" id="transportInput" style="display:none;margin-top:4px">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>⏱ 移動時間<span class="optional">（分）</span></label>
+            <input type="number" id="duration" min="0">
+          </div>
+          <div class="form-group">
+            <label>📍 観光時間<span class="optional">（分）</span></label>
+            <input type="number" id="sightTime" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>🚄 移動費用<span class="optional">（円）</span></label>
+          <div class="fee-row">
+            <input type="number" id="price" min="0">
+            <div class="person-toggle">
+              <button type="button" id="move-1" class="active" onclick="setPersons('move',1)">1人</button>
+              <button type="button" id="move-2" onclick="setPersons('move',2)">2人</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>🎫 観光費用<span class="optional">（円）</span></label>
+          <div class="fee-row">
+            <input type="number" id="sightFee" min="0">
+            <div class="person-toggle">
+              <button type="button" id="sight-1" class="active" onclick="setPersons('sight',1)">1人</button>
+              <button type="button" id="sight-2" onclick="setPersons('sight',2)">2人</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>🍽️ 食事費用<span class="optional">（円）</span></label>
+          <div class="fee-row">
+            <input type="number" id="mealFee" min="0">
+            <div class="person-toggle">
+              <button type="button" id="meal-1" class="active" onclick="setPersons('meal',1)">1人</button>
+              <button type="button" id="meal-2" onclick="setPersons('meal',2)">2人</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="submit-btn">追加する</button>
+        <button type="button" class="btn btn-secondary" id="cancel-btn" onclick="resetForm()" style="display:none">キャンセル</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDW0igcPNMIhKTg85EkGaEUDig_phji6us",
+  authDomain: "trip-plan-b8422.firebaseapp.com",
+  projectId: "trip-plan-b8422",
+  storageBucket: "trip-plan-b8422.firebasestorage.app",
+  messagingSenderId: "107179626802",
+  appId: "1:107179626802:web:19bfa63d0161376578872b",
+  measurementId: "G-1CXGQX1T2L"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const tripsCol = collection(db, "trips");
+
+window.trips = [];
+window.transportMode = 'select';
+window.selectedDate = '__all__';
+window.currentPersons = { move:1, sight:1, meal:1 };
+window.lastInputDate = localStorage.getItem('lastInputDate') || '';
+window.lastInputTime = localStorage.getItem('lastInputTime') || '';
+
+const statusEl = document.getElementById('sync-status');
+
+// Firestoreリアルタイム購読
+onSnapshot(tripsCol, (snap) => {
+  window.trips = [];
+  snap.forEach(d => window.trips.push({ id: d.id, ...d.data() }));
+  statusEl.className = 'sync-status connected';
+  statusEl.textContent = '✅ 同期中（クラウド保存）';
+  render();
+}, (err) => {
+  console.error(err);
+  statusEl.className = 'sync-status error';
+  statusEl.textContent = '⚠️ 接続エラー: ' + err.message;
+});
+
+window.saveTrip = async function(data){
+  await setDoc(doc(tripsCol, data.id), data);
+};
+window.deleteTripDoc = async function(id){
+  await deleteDoc(doc(tripsCol, id));
+};
+window.clearAllDocs = async function(){
+  const snap = await getDocs(tripsCol);
+  const batch = writeBatch(db);
+  snap.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+};
+window.bulkSave = async function(arr){
+  const batch = writeBatch(db);
+  arr.forEach(t => batch.set(doc(tripsCol, t.id), t));
+  await batch.commit();
+};
+
+// 数値inputのホイール無効化
+document.querySelectorAll('input[type=number]').forEach(el=>{
+  el.addEventListener('wheel', e=>{
+    if(document.activeElement===el){ e.preventDefault(); el.blur(); setTimeout(()=>el.focus(),0); }
+  },{passive:false});
+});
+</script>
+
+<script>
+function getNumber(id){ const v = Number(document.getElementById(id).value); return (isNaN(v)||v<0)?0:v; }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function formatDuration(min){ if(!min) return '0分'; const h=Math.floor(min/60), m=min%60; return (h?h+'時間':'')+(m?m+'分':'')||'0分'; }
+function rememberLastInput(date,time){ if(date){ lastInputDate=date; localStorage.setItem('lastInputDate',date);} if(time){ lastInputTime=time; localStorage.setItem('lastInputTime',time);} }
+function applyDefaultsToForm(){ const d=document.getElementById('date'), t=document.getElementById('departTime'); if(!d.value && lastInputDate) d.value=lastInputDate; if(!t.value && lastInputTime) t.value=lastInputTime; }
+
+function switchTransport(mode){
+  transportMode=mode;
+  document.getElementById('toggle-select').classList.toggle('active',mode==='select');
+  document.getElementById('toggle-input').classList.toggle('active',mode==='input');
+  document.getElementById('transportSelect').style.display=mode==='select'?'block':'none';
+  document.getElementById('transportInput').style.display=mode==='input'?'block':'none';
+}
+function getTransportValue(){ return transportMode==='select'?document.getElementById('transportSelect').value:document.getElementById('transportInput').value.trim(); }
+
+function setPersons(kind,n){
+  currentPersons[kind]=n;
+  document.getElementById(kind+'-1').classList.toggle('active',n===1);
+  document.getElementById(kind+'-2').classList.toggle('active',n===2);
+}
+
+function addOrUpdate(e){
+  e.preventDefault();
+  const editId=document.getElementById('edit-id').value;
+  const data={
+    id: editId || ('t'+Date.now()+Math.random().toString(36).slice(2,6)),
+    date: document.getElementById('date').value,
+    departTime: document.getElementById('departTime').value,
+    gather: document.getElementById('gather').value.trim(),
+    from: document.getElementById('from').value.trim(),
+    to: document.getElementById('to').value.trim(),
+    stay: document.getElementById('stay').value.trim(),
+    sights: document.getElementById('sights').value,
+    transport: getTransportValue(),
+    duration: getNumber('duration'),
+    sightTime: getNumber('sightTime'),
+    price: getNumber('price'),
+    sightFee: getNumber('sightFee'),
+    mealFee: getNumber('mealFee'),
+    movePersons: currentPersons.move,
+    sightPersons: currentPersons.sight,
+    mealPersons: currentPersons.meal,
+    createdAt: Date.now()
+  };
+  rememberLastInput(data.date, data.departTime);
+  saveTrip(data).catch(err=>alert('保存エラー: '+err.message));
+  resetForm();
+}
+
+function editTrip(id){
+  const t=trips.find(x=>x.id===id); if(!t) return;
+  document.getElementById('edit-id').value=t.id;
+  document.getElementById('date').value=t.date||'';
+  document.getElementById('departTime').value=t.departTime||'';
+  document.getElementById('gather').value=t.gather||'';
+  document.getElementById('from').value=t.from||'';
+  document.getElementById('to').value=t.to||'';
+  document.getElementById('stay').value=t.stay||'';
+  document.getElementById('sights').value=t.sights||'';
+  const sel=document.getElementById('transportSelect');
+  const opts=Array.from(sel.options).map(o=>o.value);
+  if(opts.includes(t.transport)){ switchTransport('select'); sel.value=t.transport; }
+  else{ switchTransport('input'); document.getElementById('transportInput').value=t.transport||''; }
+  document.getElementById('duration').value=t.duration||'';
+  document.getElementById('sightTime').value=t.sightTime||'';
+  document.getElementById('price').value=t.price||'';
+  document.getElementById('sightFee').value=t.sightFee||'';
+  document.getElementById('mealFee').value=t.mealFee||'';
+  setPersons('move', t.movePersons||t.persons||1);
+  setPersons('sight', t.sightPersons||t.persons||1);
+  setPersons('meal', t.mealPersons||t.persons||1);
+  document.getElementById('form-title').textContent='✏️ 行程を編集';
+  document.getElementById('submit-btn').textContent='更新する';
+  document.getElementById('cancel-btn').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function deleteTrip(id){ if(confirm('この行程を削除しますか？')) deleteTripDoc(id).catch(err=>alert('削除エラー: '+err.message)); }
+
+function resetForm(){
+  document.getElementById('trip-form').reset();
+  document.getElementById('edit-id').value='';
+  document.getElementById('transportInput').value='';
+  switchTransport('select');
+  setPersons('move',1); setPersons('sight',1); setPersons('meal',1);
+  applyDefaultsToForm();
+  document.getElementById('form-title').textContent='➕ 新しい行程を追加';
+  document.getElementById('submit-btn').textContent='追加する';
+  document.getElementById('cancel-btn').style.display='none';
+}
+
+function clearAll(){ if(confirm('すべての行程をクラウドから削除しますか？')) clearAllDocs().catch(err=>alert(err.message)); }
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(trips,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='trip-itinerary.json'; a.click();
+}
+
+function loadSample(){
+  const sample=[
+    {id:'s1',date:'2026-05-01',departTime:'08:30',gather:'東京駅 丸の内中央口',from:'',to:'',stay:'',sights:'',transport:'',duration:0,sightTime:0,price:0,sightFee:0,mealFee:0,movePersons:1,sightPersons:1,mealPersons:1,createdAt:Date.now()},
+    {id:'s2',date:'2026-05-01',departTime:'09:00',gather:'',from:'東京',to:'京都',stay:'京都市内ホテル',sights:'清水寺\n伏見稲荷大社',transport:'🚄 新幹線',duration:140,sightTime:180,price:13320,sightFee:500,mealFee:3000,movePersons:2,sightPersons:2,mealPersons:2,createdAt:Date.now()+1},
+    {id:'s3',date:'2026-05-02',departTime:'10:00',gather:'',from:'京都',to:'大阪',stay:'大阪梅田ホテル',sights:'道頓堀\n通天閣',transport:'🚆 電車',duration:30,sightTime:240,price:570,sightFee:800,mealFee:4500,movePersons:2,sightPersons:2,mealPersons:1,createdAt:Date.now()+2}
+  ];
+  bulkSave(sample).catch(err=>alert(err.message));
+}
+
+function formatDateLabel(d){ if(!d) return '日付未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${w}）`; }
+function formatDateShort(d){ if(!d) return '未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getMonth()+1}/${dt.getDate()}(${w})`; }
+function sortKey(t){ const d=t.date||'9999-99-99'; const tm=t.departTime||'99:99'; return d+' '+tm; }
+
+function buildRouteLines(t){
+  const lines=[];
+  if(t.gather) lines.push(`<div class="route-line"><span class="icon">🚩</span><span>${escapeHtml(t.gather)}</span><span class="verb">に集合</span></div>`);
+  if(t.from)   lines.push(`<div class="route-line"><span class="icon">🛫</span><span>${escapeHtml(t.from)}</span><span class="verb">を出発</span></div>`);
+  if(t.to)     lines.push(`<div class="route-line"><span class="icon">🛬</span><span>${escapeHtml(t.to)}</span><span class="verb">に到着</span></div>`);
+  if(t.stay)   lines.push(`<div class="route-line"><span class="icon">🏨</span><span>${escapeHtml(t.stay)}</span><span class="verb">に滞在</span></div>`);
+  if(t.sights){ t.sights.split('\n').filter(s=>s.trim()).forEach(s=>{
+    lines.push(`<div class="route-line"><span class="icon">📍</span><span>${escapeHtml(s.trim())}</span><span class="verb">を観光</span></div>`);
+  });}
+  return lines.join('');
+}
+
+function feeBadgeText(amount, persons){
+  if(!amount) return '';
+  const total=amount*persons;
+  return persons===2 ? `¥${amount.toLocaleString()} × 2人 = ¥${total.toLocaleString()}` : `¥${amount.toLocaleString()}`;
+}
+
+function render(){
+  const sorted=trips.slice().sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
+  const dates=[...new Set(sorted.map(t=>t.date||'').filter(d=>d))];
+
+  // 日付タブ
+  const tabs=document.getElementById('date-tabs');
+  let tabsHtml=`<div class="date-tab ${selectedDate==='__all__'?'active':''}" onclick="selectDate('__all__')"><span class="tab-day">全日程</span><span class="tab-date">All</span></div>`;
+  dates.forEach((d,i)=>{
+    tabsHtml+=`<div class="date-tab ${selectedDate===d?'active':''}" onclick="selectDate('${d}')"><span class="tab-day">Day ${i+1}</span><span class="tab-date">${formatDateShort(d)}</span></div>`;
+  });
+  tabs.innerHTML=tabsHtml;
+
+  // 表示対象
+  const visible = selectedDate==='__all__' ? sorted : sorted.filter(t=>t.date===selectedDate);
+
+  // サマリー集計
+  const uniqDates=new Set(visible.map(t=>t.date).filter(Boolean));
+  let totMove=0, totSight=0, totMoveFee=0, totSightFee=0, totMealFee=0, spots=0;
+  visible.forEach(t=>{
+    totMove += t.duration||0;
+    totSight += t.sightTime||0;
+    totMoveFee += (t.price||0)*(t.movePersons||t.persons||1);
+    totSightFee += (t.sightFee||0)*(t.sightPersons||t.persons||1);
+    totMealFee += (t.mealFee||0)*(t.mealPersons||t.persons||1);
+    if(t.sights) spots += t.sights.split('\n').filter(s=>s.trim()).length;
+  });
+  const totalAll = totMoveFee+totSightFee+totMealFee;
+
+  document.getElementById('summary-title').textContent =
+    selectedDate==='__all__' ? '📊 全日程のサマリー' : `📊 ${formatDateLabel(selectedDate)}のサマリー`;
+
+  document.getElementById('summary').innerHTML = `
+    <div class="summary-card"><div class="label">日数</div><div class="value">${uniqDates.size}日</div></div>
+    <div class="summary-card"><div class="label">行程数</div><div class="value">${visible.length}件</div></div>
+    <div class="summary-card"><div class="label">合計移動時間</div><div class="value">${formatDuration(totMove)}</div></div>
+    <div class="summary-card"><div class="label">合計観光時間</div><div class="value">${formatDuration(totSight)}</div></div>
+    <div class="summary-card"><div class="label">観光スポット</div><div class="value">${spots}ヵ所</div></div>
+    <div class="summary-card move"><div class="label">🚄 移動費用</div><div class="value">¥${totMoveFee.toLocaleString()}</div></div>
+    <div class="summary-card sight"><div class="label">🎫 観光費用</div><div class="value">¥${totSightFee.toLocaleString()}</div></div>
+    <div class="summary-card meal"><div class="label">🍽️ 食事費用</div><div class="value">¥${totMealFee.toLocaleString()}</div></div>
+    <div class="summary-card total"><div class="label">💴 費用合計</div><div class="value">¥${totalAll.toLocaleString()}</div></div>
+  `;
+
+  // タイムライン
+  const tl=document.getElementById('timeline');
+  if(visible.length===0){
+    tl.innerHTML=`<div class="empty"><div class="icon">📭</div>行程がまだありません<br>右のフォームから追加するか、「サンプル読み込み」を押してください</div>`;
+    return;
+  }
+  // 日ごとにグルーピング
+  const groups={};
+  visible.forEach(t=>{ const k=t.date||'未設定'; (groups[k]=groups[k]||[]).push(t); });
+
+  let html='';
+  let dayIdx=0;
+  Object.keys(groups).sort().forEach(dateKey=>{
+    dayIdx++;
+    const items=groups[dateKey];
+    let dMove=0,dSight=0,dFee=0;
+    items.forEach(t=>{
+      dMove+=t.duration||0; dSight+=t.sightTime||0;
+      dFee += (t.price||0)*(t.movePersons||t.persons||1) + (t.sightFee||0)*(t.sightPersons||t.persons||1) + (t.mealFee||0)*(t.mealPersons||t.persons||1);
+    });
+    html+=`<div class="day-group" id="day-${dateKey}">
+      <div class="day-header"><span class="day-num">Day ${dayIdx}</span>${formatDateLabel(dateKey)}<span class="day-stats">⏱ ${formatDuration(dMove)}｜📍 ${formatDuration(dSight)}｜💴 ¥${dFee.toLocaleString()}</span></div>
+      <div class="timeline">`;
+    items.forEach((t,idx)=>{
+      // 移動情報パネル（2件目以降に表示）
+      if(idx>0 && (t.duration||t.transport||t.price)){
+        const parts=[];
+        if(t.transport) parts.push(`<span class="t-item">${escapeHtml(t.transport)}</span>`);
+        if(t.duration) parts.push(`<span class="t-item">⏱ ${formatDuration(t.duration)}</span>`);
+        if(t.price){
+          const txt=feeBadgeText(t.price, t.movePersons||t.persons||1);
+          parts.push(`<span class="t-item">💴 ${txt}</span>`);
+        }
+        html+=`<div class="travel-info">${parts.join('<span class="t-sep">｜</span>')}</div>`;
+      }
+      const badges=[];
+      if(t.departTime) badges.push(`<span class="badge depart">🕐 ${escapeHtml(t.departTime)}</span>`);
+      if(t.sightTime) badges.push(`<span class="badge sightTime">📍 観光時間 ${formatDuration(t.sightTime)}</span>`);
+      if(t.sightFee){ const tx=feeBadgeText(t.sightFee, t.sightPersons||t.persons||1); badges.push(`<span class="badge sightFee">🎫 ${tx}</span>`); }
+      if(t.mealFee){ const tx=feeBadgeText(t.mealFee, t.mealPersons||t.persons||1); badges.push(`<span class="badge mealFee">🍽️ ${tx}</span>`); }
+      html+=`<div class="timeline-item">
+        <div class="dot"></div>
+        <div class="card">
+          <div class="route-lines">${buildRouteLines(t)||'<div class="route-line"><span class="verb">（場所未入力）</span></div>'}</div>
+          ${badges.length?`<div class="info-row">${badges.join('')}</div>`:''}
+          <div class="actions">
+            <button class="btn-small btn-edit" onclick="editTrip('${t.id}')">編集</button>
+            <button class="btn-small btn-delete" onclick="deleteTrip('${t.id}')">削除</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  tl.innerHTML=html;
+}
+
+function selectDate(d){
+  selectedDate=d; render();
+  if(d!=='__all__'){ const el=document.getElementById('day-'+d); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+
+// 関数をグローバルに公開
+window.switchTransport=switchTransport;
+window.setPersons=setPersons;
+window.addOrUpdate=addOrUpdate;
+window.editTrip=editTrip;
+window.deleteTrip=deleteTrip;
+window.resetForm=resetForm;
+window.clearAll=clearAll;
+window.exportJSON=exportJSON;
+window.loadSample=loadSample;
+window.selectDate=selectDate;
+window.render=render;
+
+// 初期化
+applyDefaultsToForm();
+</script>
+</body>
+</html>
