@@ -21,6 +21,7 @@
   .summary-card.move{border-left-color:#3182ce}
   .summary-card.sight{border-left-color:#dd6b20}
   .summary-card.meal{border-left-color:#38a169}
+  .summary-card.stay{border-left-color:#805ad5}
   .summary-card.total{border-left-color:#e53e3e}
   .summary-card .label{font-size:11px;color:#718096;margin-bottom:4px}
   .summary-card .value{font-size:18px;font-weight:700;color:#2d3748}
@@ -66,6 +67,7 @@
   .badge.sightTime{background:#fff5f7;color:#b83280;border-color:#fbb6ce}
   .badge.sightFee{background:#fffaf0;color:#c05621;border-color:#fbd38d}
   .badge.mealFee{background:#f0fff4;color:#276749;border-color:#c6f6d5}
+  .badge.stayFee{background:#faf5ff;color:#553c9a;border-color:#d6bcfa}
   .badge.move{background:#ebf8ff;color:#2c5282;border-color:#bee3f8}
   .travel-info{margin:8px 0;padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#4a5568;background:#ebf8ff;border:1px dashed #90cdf4;border-radius:8px}
   .travel-info .t-item{display:inline-flex;align-items:center;gap:4px;color:#2c5282;font-weight:600}
@@ -245,6 +247,16 @@
             </div>
           </div>
         </div>
+        <div class="form-group">
+          <label><span class="role-label role-stay">泊</span>滞在費用<span class="optional">（円）</span></label>
+          <div class="fee-row">
+            <input type="number" id="stayFee" min="0">
+            <div class="person-toggle">
+              <button type="button" id="stayp-1" class="active" onclick="setPersons('stayp',1)">1人</button>
+              <button type="button" id="stayp-2" onclick="setPersons('stayp',2)">2人</button>
+            </div>
+          </div>
+        </div>
         <button type="submit" class="btn" id="submit-btn">追加する</button>
         <button type="button" class="btn btn-secondary" id="cancel-btn" onclick="resetForm()" style="display:none">キャンセル</button>
       </form>
@@ -273,7 +285,7 @@ const tripsCol = collection(db, "trips");
 window.trips = [];
 window.transportMode = 'select';
 window.selectedDate = '__all__';
-window.currentPersons = { move:1, sight:1, meal:1 };
+window.currentPersons = { move:1, sight:1, meal:1, stayp:1 };
 window.lastInputDate = localStorage.getItem('lastInputDate') || '';
 
 const statusEl = document.getElementById('sync-status');
@@ -409,9 +421,11 @@ function addOrUpdate(e){
     price: getNumber('price'),
     sightFee: getNumber('sightFee'),
     mealFee: getNumber('mealFee'),
+    stayFee: getNumber('stayFee'),
     movePersons: currentPersons.move,
     sightPersons: currentPersons.sight,
     mealPersons: currentPersons.meal,
+    stayPersons: currentPersons.stayp,
     createdAt: Date.now()
   };
   if(data.date){ lastInputDate=data.date; localStorage.setItem('lastInputDate',data.date); }
@@ -442,9 +456,11 @@ function editTrip(id){
   document.getElementById('price').value=t.price||'';
   document.getElementById('sightFee').value=t.sightFee||'';
   document.getElementById('mealFee').value=t.mealFee||'';
+  document.getElementById('stayFee').value=t.stayFee||'';
   setPersons('move', t.movePersons||t.persons||1);
   setPersons('sight', t.sightPersons||t.persons||1);
   setPersons('meal', t.mealPersons||t.persons||1);
+  setPersons('stayp', t.stayPersons||t.persons||1);
   document.getElementById('form-title').textContent='✏️ 行程を編集';
   document.getElementById('submit-btn').textContent='更新する';
   document.getElementById('cancel-btn').style.display='block';
@@ -458,7 +474,7 @@ function resetForm(){
   document.getElementById('edit-id').value='';
   document.getElementById('transportInput').value='';
   switchTransport('select');
-  setPersons('move',1); setPersons('sight',1); setPersons('meal',1);
+  setPersons('move',1); setPersons('sight',1); setPersons('meal',1); setPersons('stayp',1);
   applyDefaultsToForm();
   document.getElementById('form-title').textContent='➕ 新しい行程を追加';
   document.getElementById('submit-btn').textContent='追加する';
@@ -475,8 +491,8 @@ function exportJSON(){
 
 function loadSample(){
   const sample=[
-    {id:'s1',date:'2026-05-01',gather:'東京駅 丸の内中央口',gatherTime:'08:30',from:'東京駅',fromTime:'09:00',to:'京都駅',toTime:'11:20',stay:'京都市内ホテル',stayTime:'17:00',sights:'清水寺\n伏見稲荷大社',sightStartTime:'13:00',transport:'🚄 新幹線',duration:140,sightTime:180,price:13320,sightFee:500,mealFee:3000,movePersons:2,sightPersons:2,mealPersons:2,createdAt:Date.now()},
-    {id:'s2',date:'2026-05-02',from:'京都駅',fromTime:'10:00',to:'大阪駅',toTime:'10:30',stay:'大阪梅田ホテル',stayTime:'18:00',sights:'道頓堀\n通天閣',sightStartTime:'13:30',transport:'🚆 電車',duration:30,sightTime:240,price:570,sightFee:800,mealFee:4500,movePersons:2,sightPersons:2,mealPersons:1,createdAt:Date.now()+1}
+    {id:'s1',date:'2026-05-01',gather:'東京駅 丸の内中央口',gatherTime:'08:30',from:'東京駅',fromTime:'09:00',to:'京都駅',toTime:'11:20',stay:'京都市内ホテル',stayTime:'17:00',sights:'清水寺\n伏見稲荷大社',sightStartTime:'13:00',transport:'🚄 新幹線',duration:140,sightTime:180,price:13320,sightFee:500,mealFee:3000,stayFee:12000,movePersons:2,sightPersons:2,mealPersons:2,stayPersons:2,createdAt:Date.now()},
+    {id:'s2',date:'2026-05-02',from:'京都駅',fromTime:'10:00',to:'大阪駅',toTime:'10:30',stay:'大阪梅田ホテル',stayTime:'18:00',sights:'道頓堀\n通天閣',sightStartTime:'13:30',transport:'🚆 電車',duration:30,sightTime:240,price:570,sightFee:800,mealFee:4500,stayFee:15000,movePersons:2,sightPersons:2,mealPersons:1,stayPersons:2,createdAt:Date.now()+1}
   ];
   bulkSave(sample).catch(err=>alert(err.message));
 }
@@ -524,7 +540,6 @@ function buildTravelInfo(t){
 
 function render(){
   const sorted=trips.slice().sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
-  // 全日程に基づいた Day 番号を一度だけ算出
   const allDates=[...new Set(sorted.map(t=>t.date||'').filter(d=>d))];
   const dayMap={}; allDates.forEach((d,i)=>{ dayMap[d]=i+1; });
 
@@ -536,9 +551,17 @@ function render(){
   const visible = selectedDate==='__all__' ? sorted : sorted.filter(t=>t.date===selectedDate);
 
   const uniqDates=new Set(visible.map(t=>t.date).filter(Boolean));
-  let totMove=0, totSight=0, totMoveFee=0, totSightFee=0, totMealFee=0, spots=0;
-  visible.forEach(t=>{ totMove+=t.duration||0; totSight+=t.sightTime||0; totMoveFee+= (t.price||0)*(t.movePersons||t.persons||1); totSightFee+= (t.sightFee||0)*(t.sightPersons||t.persons||1); totMealFee+= (t.mealFee||0)*(t.mealPersons||t.persons||1); if(t.sights) spots+= t.sights.split('\n').filter(s=>s.trim()).length; });
-  const totalAll = totMoveFee+totSightFee+totMealFee;
+  let totMove=0, totSight=0, totMoveFee=0, totSightFee=0, totMealFee=0, totStayFee=0, spots=0;
+  visible.forEach(t=>{
+    totMove+=t.duration||0;
+    totSight+=t.sightTime||0;
+    totMoveFee += (t.price||0)*(t.movePersons||t.persons||1);
+    totSightFee+= (t.sightFee||0)*(t.sightPersons||t.persons||1);
+    totMealFee += (t.mealFee||0)*(t.mealPersons||t.persons||1);
+    totStayFee += (t.stayFee||0)*(t.stayPersons||t.persons||1);
+    if(t.sights) spots+= t.sights.split('\n').filter(s=>s.trim()).length;
+  });
+  const totalAll = totMoveFee+totSightFee+totMealFee+totStayFee;
 
   document.getElementById('summary-title').textContent = selectedDate==='__all__' ? '📊 全日程のサマリー' : `📊 ${formatDateLabel(selectedDate)}のサマリー`;
 
@@ -551,6 +574,7 @@ function render(){
     <div class="summary-card move"><div class="label">🚄 移動費用</div><div class="value">¥${totMoveFee.toLocaleString()}</div></div>
     <div class="summary-card sight"><div class="label">🎫 観光費用</div><div class="value">¥${totSightFee.toLocaleString()}</div></div>
     <div class="summary-card meal"><div class="label">🍽️ 食事費用</div><div class="value">¥${totMealFee.toLocaleString()}</div></div>
+    <div class="summary-card stay"><div class="label">🏨 滞在費用</div><div class="value">¥${totStayFee.toLocaleString()}</div></div>
     <div class="summary-card total"><div class="label">💴 費用合計</div><div class="value">¥${totalAll.toLocaleString()}</div></div>
   `;
 
@@ -567,7 +591,14 @@ function render(){
     const dayNum = dayMap[dateKey] || '-';
     const items=groups[dateKey];
     let dMove=0,dSight=0,dFee=0;
-    items.forEach(t=>{ dMove+=t.duration||0; dSight+=t.sightTime||0; dFee += (t.price||0)*(t.movePersons||t.persons||1) + (t.sightFee||0)*(t.sightPersons||t.persons||1) + (t.mealFee||0)*(t.mealPersons||t.persons||1); });
+    items.forEach(t=>{
+      dMove+=t.duration||0;
+      dSight+=t.sightTime||0;
+      dFee += (t.price||0)*(t.movePersons||t.persons||1)
+            + (t.sightFee||0)*(t.sightPersons||t.persons||1)
+            + (t.mealFee||0)*(t.mealPersons||t.persons||1)
+            + (t.stayFee||0)*(t.stayPersons||t.persons||1);
+    });
     html+=`<div class="day-group" id="day-${dateKey}">
       <div class="day-header"><span class="day-num">Day ${dayNum}</span>${formatDateLabel(dateKey)}<span class="day-stats">⏱ ${formatDuration(dMove)}｜<span class="role-badge role-sight" style="display:inline-flex;width:18px;height:18px;font-size:10px;vertical-align:middle">観</span> ${formatDuration(dSight)}｜💴 ¥${dFee.toLocaleString()}</span></div>
       <div class="timeline">`;
@@ -576,6 +607,7 @@ function render(){
       if(t.sightTime) badges.push(`<span class="badge sightTime"><span class="role-badge role-sight" style="width:16px;height:16px;font-size:10px">観</span> 観光時間 ${formatDuration(t.sightTime)}</span>`);
       if(t.sightFee){ const tx=feeBadgeText(t.sightFee, t.sightPersons||t.persons||1); badges.push(`<span class="badge sightFee">🎫 ${tx}</span>`); }
       if(t.mealFee){ const tx=feeBadgeText(t.mealFee, t.mealPersons||t.persons||1); badges.push(`<span class="badge mealFee">🍽️ ${tx}</span>`); }
+      if(t.stayFee){ const tx=feeBadgeText(t.stayFee, t.stayPersons||t.persons||1); badges.push(`<span class="badge stayFee"><span class="role-badge role-stay" style="width:16px;height:16px;font-size:10px">泊</span> ${tx}</span>`); }
       const travelHtml = buildTravelInfo(t);
       html+=`<div class="timeline-item">
         <div class="dot"></div>
