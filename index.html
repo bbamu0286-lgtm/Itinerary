@@ -9,19 +9,13 @@
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;color:#333}
   .container{max-width:1200px;margin:0 auto}
   header{background:white;border-radius:16px;padding:20px 28px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
-
-  /* 折りたたみトグル（最上段） */
-  .summary-header{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 8px;border-radius:8px;transition:background 0.15s}
-  .summary-header:hover{background:#f7fafc}
-  .summary-header .summary-title{font-size:14px;color:#4a5568;font-weight:600;flex:1;margin:0}
-  .summary-toggle{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#edf2f7;border:1px solid #cbd5e0;color:#4a5568;font-size:16px;font-weight:700;line-height:1;flex-shrink:0}
-  .summary-header:hover .summary-toggle{background:#667eea;color:white;border-color:#667eea}
-
-  /* 折りたたみ対象（サマリー＋タイトル群） */
-  .collapsible{overflow:hidden;transition:max-height 0.3s ease,opacity 0.2s ease,margin-top 0.3s ease;max-height:2000px;opacity:1}
-  .collapsible.collapsed{max-height:0;opacity:0;margin-top:0 !important;margin-bottom:0 !important}
-
-  .summary-wrapper{margin-top:12px}
+  .summary-header{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:4px 0}
+  .summary-toggle{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:#edf2f7;color:#4a5568;font-weight:700;font-size:18px;line-height:1}
+  .summary-header:hover .summary-toggle{background:#667eea;color:white}
+  .summary-title{font-size:15px;color:#2d3748;font-weight:700}
+  .collapsible{overflow:hidden;transition:max-height .3s ease,opacity .3s ease,margin .3s ease;max-height:2000px;opacity:1;margin-top:14px}
+  .collapsible.collapsed{max-height:0;opacity:0;margin-top:0}
+  .summary-wrapper{margin-bottom:16px}
   .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
   .summary-card{background:linear-gradient(135deg,#f6f9fc 0%,#edf2f7 100%);padding:14px;border-radius:12px;border-left:4px solid #667eea}
   .summary-card.move{border-left-color:#3182ce}
@@ -30,58 +24,52 @@
   .summary-card.total{border-left-color:#e53e3e}
   .summary-card .label{font-size:11px;color:#718096;margin-bottom:4px}
   .summary-card .value{font-size:18px;font-weight:700;color:#2d3748}
-
-  .title-block{margin-top:18px}
-  h1{font-size:28px;color:#4a5568;display:flex;align-items:center;gap:12px}
-  h1::before{content:"✈️";font-size:32px}
+  .title-block{padding-top:6px;border-top:1px solid #edf2f7;margin-top:6px}
+  h1{font-size:26px;color:#4a5568;display:flex;align-items:center;gap:12px;padding-top:10px}
+  h1::before{content:"✈️";font-size:30px}
   .subtitle{color:#718096;margin-top:6px;font-size:14px}
   .sync-status{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
   .sync-status.connected{background:#c6f6d5;color:#22543d}
   .sync-status.connecting{background:#feebc8;color:#7b341e}
   .sync-status.error{background:#fed7d7;color:#742a2a}
-
   .layout{display:grid;grid-template-columns:1fr 380px;gap:20px}
   @media (max-width:900px){.layout{grid-template-columns:1fr}}
-  .timeline-section,.form-section{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.1);scroll-margin-top:12px}
+  .timeline-section,.form-section{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
   .section-title{font-size:18px;color:#2d3748;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
   .date-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:8px}
-  .date-tab{flex-shrink:0;padding:10px 14px;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#4a5568;transition:all 0.2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
+  .date-tab{flex-shrink:0;padding:10px 14px;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#4a5568;transition:all .2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
   .date-tab:hover{border-color:#667eea;color:#667eea}
   .date-tab.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-color:transparent}
   .date-tab .tab-day{font-weight:700;font-size:14px}
-  .date-tab .tab-date{font-size:11px;opacity:0.85}
+  .date-tab .tab-date{font-size:11px;opacity:.85}
   .day-group{margin-bottom:28px;scroll-margin-top:20px}
   .day-header{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:12px 18px;border-radius:12px;margin-bottom:16px;font-weight:600;flex-wrap:wrap}
   .day-header .day-num{background:white;color:#667eea;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700}
-  .day-header .day-stats{margin-left:auto;font-size:13px;opacity:0.95;font-weight:400}
-
+  .day-header .day-stats{margin-left:auto;font-size:13px;opacity:.95;font-weight:400}
   .timeline{position:relative;padding-left:23px}
   .timeline::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:3px;background:#cbd5e0}
   .timeline-item{position:relative;margin-bottom:0}
   .timeline-item .dot{position:absolute;left:-23px;top:14px;width:24px;height:24px;border-radius:50%;background:#667eea;border:4px solid white;box-shadow:0 0 0 2px #667eea;z-index:2}
   .card{background:#f7fafc;border-radius:12px;padding:16px;border:1px solid #e2e8f0}
-
   .route-lines{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
   .route-line{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#2d3748;flex-wrap:wrap}
-  .route-line .role-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:13px;font-weight:700;color:white;flex-shrink:0}
-  .route-line .role-suffix{font-size:14px;color:#2d3748;font-weight:600}
-  .route-line .role-time{font-size:12px;color:#6b46c1;background:#faf5ff;border:1px solid #e9d8fd;padding:2px 8px;border-radius:6px;font-weight:600;margin-left:auto}
+  .role-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+  .role-suffix{font-size:14px;color:#2d3748;font-weight:600}
+  .role-time{font-size:12px;color:#6b46c1;background:#faf5ff;border:1px solid #e9d8fd;padding:2px 8px;border-radius:6px;font-weight:600;margin-left:auto}
   .role-gather{background:#e53e3e}
   .role-from{background:#3182ce}
   .role-to{background:#38a169}
   .role-stay{background:#805ad5}
   .role-sight{background:#dd6b20}
-
   .info-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:12px;background:white;border:1px solid #e2e8f0;color:#4a5568}
   .badge.sightTime{background:#fff5f7;color:#b83280;border-color:#fbb6ce}
   .badge.sightFee{background:#fffaf0;color:#c05621;border-color:#fbd38d}
   .badge.mealFee{background:#f0fff4;color:#276749;border-color:#c6f6d5}
-
-  .travel-info{position:relative;margin:8px 0;padding:8px 14px 8px 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#4a5568}
-  .travel-info .t-item{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:white;border:1px solid #e2e8f0;border-radius:6px}
-  .travel-info .t-sep{color:#cbd5e0}
-
+  .badge.move{background:#ebf8ff;color:#2c5282;border-color:#bee3f8}
+  .travel-info{margin:8px 0;padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#4a5568;background:#ebf8ff;border:1px dashed #90cdf4;border-radius:8px}
+  .travel-info .t-item{display:inline-flex;align-items:center;gap:4px;color:#2c5282;font-weight:600}
+  .travel-info .t-sep{color:#a0aec0}
   .actions{margin-top:10px;display:flex;gap:8px}
   .btn-small{padding:4px 10px;font-size:12px;border:none;border-radius:6px;cursor:pointer}
   .btn-edit{background:#4299e1;color:white}
@@ -89,7 +77,7 @@
   .form-group{margin-bottom:14px}
   label{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:13px;font-weight:600;color:#4a5568;margin-bottom:5px}
   label .optional{color:#a0aec0;font-weight:400;font-size:11px}
-  .copy-btn{margin-left:auto;background:#edf2f7;border:1px solid #cbd5e0;color:#4a5568;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s}
+  .copy-btn{margin-left:auto;background:#edf2f7;border:1px solid #cbd5e0;color:#4a5568;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
   .copy-btn:hover{background:#667eea;color:white;border-color:#667eea}
   .copy-btn.copied{background:#38a169;color:white;border-color:#38a169}
   input,select,textarea{width:100%;padding:8px 12px;border:1px solid #cbd5e0;border-radius:8px;font-size:14px;font-family:inherit}
@@ -98,8 +86,7 @@
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
   input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .place-row{display:grid;grid-template-columns:1fr 110px;gap:6px;align-items:start}
-  .sights-row{display:grid;grid-template-columns:1fr 110px;gap:6px;align-items:start}
+  .place-row,.sights-row{display:grid;grid-template-columns:1fr 110px;gap:6px;align-items:start}
   .transport-toggle{display:flex;gap:4px;margin-bottom:6px;background:#edf2f7;padding:3px;border-radius:8px}
   .transport-toggle button{flex:1;padding:5px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:12px;color:#718096}
   .transport-toggle button.active{background:white;color:#667eea;font-weight:600}
@@ -122,17 +109,12 @@
 <body>
 <div class="container">
   <header>
-    <!-- 折りたたみトグル：最上段 -->
     <div class="summary-header" onclick="toggleSummary()">
       <span class="summary-toggle" id="summary-toggle">−</span>
       <span class="summary-title" id="summary-title">📊 全日程のサマリー</span>
     </div>
-
-    <!-- 折りたたみ対象：サマリー本体＋タイトル群 -->
     <div class="collapsible" id="collapsible-area">
-      <div class="summary-wrapper">
-        <div class="summary" id="summary"></div>
-      </div>
+      <div class="summary-wrapper"><div class="summary" id="summary"></div></div>
       <div class="title-block">
         <h1>Trip Planner</h1>
         <div class="subtitle">二人で共有できる旅行日程ビジュアライザー</div>
@@ -140,9 +122,8 @@
       </div>
     </div>
   </header>
-
   <div class="layout">
-    <div class="timeline-section" id="timeline-section">
+    <div class="timeline-section">
       <div class="section-title">🗺️ Timeline</div>
       <div class="date-tabs" id="date-tabs"></div>
       <div class="toolbar">
@@ -160,7 +141,6 @@
           <label>📅 日付<span class="optional">（任意）</span></label>
           <input type="date" id="date">
         </div>
-
         <div class="form-group">
           <label><span class="role-label role-gather">集</span>集合場所<span class="optional">（任意）</span></label>
           <div class="place-row">
@@ -168,10 +148,8 @@
             <input type="time" id="gatherTime" title="集合時刻">
           </div>
         </div>
-
         <div class="form-group">
-          <label>
-            <span class="role-label role-from">出</span>出発地<span class="optional">（任意）</span>
+          <label><span class="role-label role-from">出</span>出発地<span class="optional">（任意）</span>
             <button type="button" class="copy-btn" data-copy-target="from" data-copy-source="gather">⧉ 集合場所からコピー</button>
           </label>
           <div class="place-row">
@@ -179,10 +157,8 @@
             <input type="time" id="fromTime" title="出発時刻">
           </div>
         </div>
-
         <div class="form-group">
-          <label>
-            <span class="role-label role-to">着</span>到着地<span class="optional">（任意）</span>
+          <label><span class="role-label role-to">着</span>到着地<span class="optional">（任意）</span>
             <button type="button" class="copy-btn" data-copy-target="to" data-copy-source="from">⧉ 出発地からコピー</button>
           </label>
           <div class="place-row">
@@ -190,10 +166,8 @@
             <input type="time" id="toTime" title="到着時刻">
           </div>
         </div>
-
         <div class="form-group">
-          <label>
-            <span class="role-label role-stay">泊</span>滞在地<span class="optional">（任意）</span>
+          <label><span class="role-label role-stay">泊</span>滞在地<span class="optional">（任意）</span>
             <button type="button" class="copy-btn" data-copy-target="stay" data-copy-source="to">⧉ 到着地からコピー</button>
           </label>
           <div class="place-row">
@@ -201,10 +175,8 @@
             <input type="time" id="stayTime" title="チェックイン時刻">
           </div>
         </div>
-
         <div class="form-group">
-          <label>
-            <span class="role-label role-sight">観</span>観光場所<span class="optional">（任意・改行で複数）</span>
+          <label><span class="role-label role-sight">観</span>観光場所<span class="optional">（任意・改行で複数）</span>
             <button type="button" class="copy-btn" data-copy-target="sights" data-copy-source="to">⧉ 到着地からコピー</button>
           </label>
           <div class="sights-row">
@@ -213,7 +185,6 @@
           </div>
           <div class="form-hint">観光時刻は最初の観光地に対する開始時刻です</div>
         </div>
-
         <div class="form-group">
           <label>🚄 移動手段<span class="optional">（任意）</span></label>
           <div class="transport-toggle">
@@ -304,7 +275,6 @@ window.transportMode = 'select';
 window.selectedDate = '__all__';
 window.currentPersons = { move:1, sight:1, meal:1 };
 window.lastInputDate = localStorage.getItem('lastInputDate') || '';
-window.summaryCollapsed = localStorage.getItem('summaryCollapsed') === '1';
 
 const statusEl = document.getElementById('sync-status');
 
@@ -345,31 +315,8 @@ document.querySelectorAll('input[type=number]').forEach(el=>{
 function getNumber(id){ const v = Number(document.getElementById(id).value); return (isNaN(v)||v<0)?0:v; }
 function getVal(id){ return document.getElementById(id).value; }
 function getStr(id){ return document.getElementById(id).value.trim(); }
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 function formatDuration(min){ if(!min) return '0分'; const h=Math.floor(min/60), m=min%60; return (h?h+'時間':'')+(m?m+'分':'')||'0分'; }
-
-function applySummaryCollapseUI(){
-  const wrap=document.getElementById('collapsible-area');
-  const tog=document.getElementById('summary-toggle');
-  if(!wrap || !tog) return;
-  if(summaryCollapsed){ wrap.classList.add('collapsed'); tog.textContent='＋'; }
-  else { wrap.classList.remove('collapsed'); tog.textContent='−'; }
-}
-function toggleSummary(){
-  summaryCollapsed = !summaryCollapsed;
-  localStorage.setItem('summaryCollapsed', summaryCollapsed?'1':'0');
-  applySummaryCollapseUI();
-  if(summaryCollapsed){
-    // 折りたたみ後、日付タブが見える位置までスクロール
-    setTimeout(()=>{
-      const sec = document.getElementById('timeline-section');
-      if(!sec) return;
-      const rect = sec.getBoundingClientRect();
-      const targetY = window.scrollY + rect.top - 12; // セクション上端の少し上で止める
-      window.scrollTo({top: Math.max(0,targetY), behavior:'smooth'});
-    }, 320); // CSSトランジション完了後
-  }
-}
 
 function switchTransport(mode){
   transportMode=mode;
@@ -413,6 +360,31 @@ document.querySelectorAll('.copy-btn').forEach(btn=>{
 function resetCopyBtnLabel(btn){
   const map = { gather:'集合場所', from:'出発地', to:'到着地', stay:'滞在地', sights:'観光場所' };
   btn.textContent = '⧉ ' + (map[btn.dataset.copySource]||'前項') + 'からコピー';
+}
+
+function toggleSummary(){
+  const area=document.getElementById('collapsible-area');
+  const tgl=document.getElementById('summary-toggle');
+  const willCollapse = !area.classList.contains('collapsed');
+  area.classList.toggle('collapsed', willCollapse);
+  tgl.textContent = willCollapse ? '＋' : '−';
+  localStorage.setItem('summaryCollapsed', willCollapse ? '1' : '0');
+  if(willCollapse){
+    setTimeout(()=>{
+      const sec=document.querySelector('.timeline-section');
+      if(sec){
+        const y = sec.getBoundingClientRect().top + window.pageYOffset - 12;
+        window.scrollTo({top:y, behavior:'smooth'});
+      }
+    }, 320);
+  }
+}
+function applySummaryCollapseUI(){
+  const collapsed = localStorage.getItem('summaryCollapsed')==='1';
+  const area=document.getElementById('collapsible-area');
+  const tgl=document.getElementById('summary-toggle');
+  area.classList.toggle('collapsed', collapsed);
+  tgl.textContent = collapsed ? '＋' : '−';
 }
 
 function addOrUpdate(e){
@@ -510,7 +482,7 @@ function loadSample(){
 }
 
 function formatDateLabel(d){ if(!d) return '日付未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${w}）`; }
-function formatDateShort(d){ if(!d) return '未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getMonth()+1}/${dt.getDate()}(${w}) `; }
+function formatDateShort(d){ if(!d) return '未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getMonth()+1}/${dt.getDate()}(${w})`; }
 
 function primaryTime(t){ return t.gatherTime || t.fromTime || t.sightStartTime || t.toTime || t.stayTime || t.departTime || ''; }
 function sortKey(t){ const d=t.date||'9999-99-99'; const tm=primaryTime(t)||'99:99'; return d+' '+tm; }
@@ -526,11 +498,7 @@ function buildRouteLines(t){
     list.forEach((s,i)=>{ items.push({cls:'role-sight', label:'観', text:s, time:i===0?(t.sightStartTime||''):'', suffix:'を観光'}); });
   }
   items.forEach((it,i)=>it._idx=i);
-  items.sort((a,b)=>{
-    const ak=a.time||'99:99', bk=b.time||'99:99';
-    if(ak!==bk) return ak.localeCompare(bk);
-    return a._idx - b._idx;
-  });
+  items.sort((a,b)=>{ const ak=a.time||'99:99', bk=b.time||'99:99'; if(ak!==bk) return ak.localeCompare(bk); return a._idx - b._idx; });
   return items.map(it=>{
     const timeHtml = it.time ? `<span class="role-time">🕐 ${escapeHtml(it.time)}</span>` : '';
     const suffixHtml = it.suffix ? `<span class="role-suffix">${it.suffix}</span>` : '';
@@ -544,33 +512,35 @@ function feeBadgeText(amount, persons){
   return persons===2 ? `¥${amount.toLocaleString()} × 2人 = ¥${total.toLocaleString()}` : `¥${amount.toLocaleString()}`;
 }
 
+function buildTravelInfo(t){
+  if(!(t.from && t.to)) return '';
+  if(!(t.transport || t.duration || t.price)) return '';
+  const parts=[];
+  if(t.transport) parts.push(`<span class="t-item">${escapeHtml(t.transport)}</span>`);
+  if(t.duration) parts.push(`<span class="t-item">⏱ ${formatDuration(t.duration)}</span>`);
+  if(t.price){ const txt=feeBadgeText(t.price, t.movePersons||t.persons||1); parts.push(`<span class="t-item">💴 ${txt}</span>`); }
+  return `<div class="travel-info">${parts.join('<span class="t-sep">｜</span>')}</div>`;
+}
+
 function render(){
   const sorted=trips.slice().sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
-  const dates=[...new Set(sorted.map(t=>t.date||'').filter(d=>d))];
+  // 全日程に基づいた Day 番号を一度だけ算出
+  const allDates=[...new Set(sorted.map(t=>t.date||'').filter(d=>d))];
+  const dayMap={}; allDates.forEach((d,i)=>{ dayMap[d]=i+1; });
 
   const tabs=document.getElementById('date-tabs');
   let tabsHtml=`<div class="date-tab ${selectedDate==='__all__'?'active':''}" onclick="selectDate('__all__')"><span class="tab-day">全日程</span><span class="tab-date">All</span></div>`;
-  dates.forEach((d,i)=>{
-    tabsHtml+=`<div class="date-tab ${selectedDate===d?'active':''}" onclick="selectDate('${d}')"><span class="tab-day">Day ${i+1}</span><span class="tab-date">${formatDateShort(d)}</span></div>`;
-  });
+  allDates.forEach(d=>{ tabsHtml+=`<div class="date-tab ${selectedDate===d?'active':''}" onclick="selectDate('${d}')"><span class="tab-day">Day ${dayMap[d]}</span><span class="tab-date">${formatDateShort(d)}</span></div>`; });
   tabs.innerHTML=tabsHtml;
 
   const visible = selectedDate==='__all__' ? sorted : sorted.filter(t=>t.date===selectedDate);
 
   const uniqDates=new Set(visible.map(t=>t.date).filter(Boolean));
   let totMove=0, totSight=0, totMoveFee=0, totSightFee=0, totMealFee=0, spots=0;
-  visible.forEach(t=>{
-    totMove += t.duration||0;
-    totSight += t.sightTime||0;
-    totMoveFee += (t.price||0)*(t.movePersons||t.persons||1);
-    totSightFee += (t.sightFee||0)*(t.sightPersons||t.persons||1);
-    totMealFee += (t.mealFee||0)*(t.mealPersons||t.persons||1);
-    if(t.sights) spots += t.sights.split('\n').filter(s=>s.trim()).length;
-  });
+  visible.forEach(t=>{ totMove+=t.duration||0; totSight+=t.sightTime||0; totMoveFee+= (t.price||0)*(t.movePersons||t.persons||1); totSightFee+= (t.sightFee||0)*(t.sightPersons||t.persons||1); totMealFee+= (t.mealFee||0)*(t.mealPersons||t.persons||1); if(t.sights) spots+= t.sights.split('\n').filter(s=>s.trim()).length; });
   const totalAll = totMoveFee+totSightFee+totMealFee;
 
-  document.getElementById('summary-title').textContent =
-    selectedDate==='__all__' ? '📊 全日程のサマリー' : `📊 ${formatDateLabel(selectedDate)}のサマリー`;
+  document.getElementById('summary-title').textContent = selectedDate==='__all__' ? '📊 全日程のサマリー' : `📊 ${formatDateLabel(selectedDate)}のサマリー`;
 
   document.getElementById('summary').innerHTML = `
     <div class="summary-card"><div class="label">日数</div><div class="value">${uniqDates.size}日</div></div>
@@ -593,34 +563,25 @@ function render(){
   visible.forEach(t=>{ const k=t.date||'未設定'; (groups[k]=groups[k]||[]).push(t); });
 
   let html='';
-  let dayIdx=0;
   Object.keys(groups).sort().forEach(dateKey=>{
-    dayIdx++;
+    const dayNum = dayMap[dateKey] || '-';
     const items=groups[dateKey];
     let dMove=0,dSight=0,dFee=0;
-    items.forEach(t=>{
-      dMove+=t.duration||0; dSight+=t.sightTime||0;
-      dFee += (t.price||0)*(t.movePersons||t.persons||1) + (t.sightFee||0)*(t.sightPersons||t.persons||1) + (t.mealFee||0)*(t.mealPersons||t.persons||1);
-    });
+    items.forEach(t=>{ dMove+=t.duration||0; dSight+=t.sightTime||0; dFee += (t.price||0)*(t.movePersons||t.persons||1) + (t.sightFee||0)*(t.sightPersons||t.persons||1) + (t.mealFee||0)*(t.mealPersons||t.persons||1); });
     html+=`<div class="day-group" id="day-${dateKey}">
-      <div class="day-header"><span class="day-num">Day ${dayIdx}</span>${formatDateLabel(dateKey)}<span class="day-stats">⏱ ${formatDuration(dMove)}｜<span class="role-badge role-sight" style="display:inline-flex;width:18px;height:18px;font-size:10px;vertical-align:middle">観</span> ${formatDuration(dSight)}｜💴 ¥${dFee.toLocaleString()}</span></div>
+      <div class="day-header"><span class="day-num">Day ${dayNum}</span>${formatDateLabel(dateKey)}<span class="day-stats">⏱ ${formatDuration(dMove)}｜<span class="role-badge role-sight" style="display:inline-flex;width:18px;height:18px;font-size:10px;vertical-align:middle">観</span> ${formatDuration(dSight)}｜💴 ¥${dFee.toLocaleString()}</span></div>
       <div class="timeline">`;
-    items.forEach((t,idx)=>{
-      if(idx>0 && (t.duration||t.transport||t.price)){
-        const parts=[];
-        if(t.transport) parts.push(`<span class="t-item">${escapeHtml(t.transport)}</span>`);
-        if(t.duration) parts.push(`<span class="t-item">⏱ ${formatDuration(t.duration)}</span>`);
-        if(t.price){ const txt=feeBadgeText(t.price, t.movePersons||t.persons||1); parts.push(`<span class="t-item">💴 ${txt}</span>`); }
-        html+=`<div class="travel-info">${parts.join('<span class="t-sep">｜</span>')}</div>`;
-      }
+    items.forEach((t)=>{
       const badges=[];
       if(t.sightTime) badges.push(`<span class="badge sightTime"><span class="role-badge role-sight" style="width:16px;height:16px;font-size:10px">観</span> 観光時間 ${formatDuration(t.sightTime)}</span>`);
       if(t.sightFee){ const tx=feeBadgeText(t.sightFee, t.sightPersons||t.persons||1); badges.push(`<span class="badge sightFee">🎫 ${tx}</span>`); }
       if(t.mealFee){ const tx=feeBadgeText(t.mealFee, t.mealPersons||t.persons||1); badges.push(`<span class="badge mealFee">🍽️ ${tx}</span>`); }
+      const travelHtml = buildTravelInfo(t);
       html+=`<div class="timeline-item">
         <div class="dot"></div>
         <div class="card">
           <div class="route-lines">${buildRouteLines(t)||'<div class="route-line"><span style="color:#a0aec0;font-weight:400">（場所未入力）</span></div>'}</div>
+          ${travelHtml}
           ${badges.length?`<div class="info-row">${badges.join('')}</div>`:''}
           <div class="actions">
             <button class="btn-small btn-edit" onclick="editTrip('${t.id}')">編集</button>
@@ -639,7 +600,6 @@ function selectDate(d){
   if(d!=='__all__'){ const el=document.getElementById('day-'+d); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
 
-window.toggleSummary=toggleSummary;
 window.switchTransport=switchTransport;
 window.setPersons=setPersons;
 window.addOrUpdate=addOrUpdate;
@@ -651,9 +611,10 @@ window.exportJSON=exportJSON;
 window.loadSample=loadSample;
 window.selectDate=selectDate;
 window.render=render;
+window.toggleSummary=toggleSummary;
 
-applyDefaultsToForm();
 applySummaryCollapseUI();
+applyDefaultsToForm();
 </script>
 </body>
 </html>
