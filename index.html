@@ -8,16 +8,21 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;color:#333}
   .container{max-width:1200px;margin:0 auto}
-  header{background:white;border-radius:16px;padding:24px 32px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
-  h1{font-size:28px;color:#4a5568;display:flex;align-items:center;gap:12px}
-  h1::before{content:"✈️";font-size:32px}
-  .subtitle{color:#718096;margin-top:6px;font-size:14px}
-  .sync-status{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
-  .sync-status.connected{background:#c6f6d5;color:#22543d}
-  .sync-status.connecting{background:#feebc8;color:#7b341e}
-  .sync-status.error{background:#fed7d7;color:#742a2a}
-  .summary-title{margin-top:20px;font-size:14px;color:#4a5568;font-weight:600}
-  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px}
+  header{background:white;border-radius:16px;padding:20px 28px;margin-bottom:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+
+  /* 折りたたみトグル（最上段） */
+  .summary-header{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 8px;border-radius:8px;transition:background 0.15s}
+  .summary-header:hover{background:#f7fafc}
+  .summary-header .summary-title{font-size:14px;color:#4a5568;font-weight:600;flex:1;margin:0}
+  .summary-toggle{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#edf2f7;border:1px solid #cbd5e0;color:#4a5568;font-size:16px;font-weight:700;line-height:1;flex-shrink:0}
+  .summary-header:hover .summary-toggle{background:#667eea;color:white;border-color:#667eea}
+
+  /* 折りたたみ対象（サマリー＋タイトル群） */
+  .collapsible{overflow:hidden;transition:max-height 0.3s ease,opacity 0.2s ease,margin-top 0.3s ease;max-height:2000px;opacity:1}
+  .collapsible.collapsed{max-height:0;opacity:0;margin-top:0 !important;margin-bottom:0 !important}
+
+  .summary-wrapper{margin-top:12px}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
   .summary-card{background:linear-gradient(135deg,#f6f9fc 0%,#edf2f7 100%);padding:14px;border-radius:12px;border-left:4px solid #667eea}
   .summary-card.move{border-left-color:#3182ce}
   .summary-card.sight{border-left-color:#dd6b20}
@@ -25,9 +30,19 @@
   .summary-card.total{border-left-color:#e53e3e}
   .summary-card .label{font-size:11px;color:#718096;margin-bottom:4px}
   .summary-card .value{font-size:18px;font-weight:700;color:#2d3748}
+
+  .title-block{margin-top:18px}
+  h1{font-size:28px;color:#4a5568;display:flex;align-items:center;gap:12px}
+  h1::before{content:"✈️";font-size:32px}
+  .subtitle{color:#718096;margin-top:6px;font-size:14px}
+  .sync-status{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+  .sync-status.connected{background:#c6f6d5;color:#22543d}
+  .sync-status.connecting{background:#feebc8;color:#7b341e}
+  .sync-status.error{background:#fed7d7;color:#742a2a}
+
   .layout{display:grid;grid-template-columns:1fr 380px;gap:20px}
   @media (max-width:900px){.layout{grid-template-columns:1fr}}
-  .timeline-section,.form-section{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+  .timeline-section,.form-section{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.1);scroll-margin-top:12px}
   .section-title{font-size:18px;color:#2d3748;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
   .date-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:8px}
   .date-tab{flex-shrink:0;padding:10px 14px;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#4a5568;transition:all 0.2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
@@ -107,14 +122,27 @@
 <body>
 <div class="container">
   <header>
-    <h1>Trip Planner</h1>
-    <div class="subtitle">二人で共有できる旅行日程ビジュアライザー</div>
-    <div id="sync-status" class="sync-status connecting">⏳ 接続中...</div>
-    <div class="summary-title" id="summary-title">📊 全日程のサマリー</div>
-    <div class="summary" id="summary"></div>
+    <!-- 折りたたみトグル：最上段 -->
+    <div class="summary-header" onclick="toggleSummary()">
+      <span class="summary-toggle" id="summary-toggle">−</span>
+      <span class="summary-title" id="summary-title">📊 全日程のサマリー</span>
+    </div>
+
+    <!-- 折りたたみ対象：サマリー本体＋タイトル群 -->
+    <div class="collapsible" id="collapsible-area">
+      <div class="summary-wrapper">
+        <div class="summary" id="summary"></div>
+      </div>
+      <div class="title-block">
+        <h1>Trip Planner</h1>
+        <div class="subtitle">二人で共有できる旅行日程ビジュアライザー</div>
+        <div id="sync-status" class="sync-status connecting">⏳ 接続中...</div>
+      </div>
+    </div>
   </header>
+
   <div class="layout">
-    <div class="timeline-section">
+    <div class="timeline-section" id="timeline-section">
       <div class="section-title">🗺️ Timeline</div>
       <div class="date-tabs" id="date-tabs"></div>
       <div class="toolbar">
@@ -276,6 +304,7 @@ window.transportMode = 'select';
 window.selectedDate = '__all__';
 window.currentPersons = { move:1, sight:1, meal:1 };
 window.lastInputDate = localStorage.getItem('lastInputDate') || '';
+window.summaryCollapsed = localStorage.getItem('summaryCollapsed') === '1';
 
 const statusEl = document.getElementById('sync-status');
 
@@ -318,6 +347,29 @@ function getVal(id){ return document.getElementById(id).value; }
 function getStr(id){ return document.getElementById(id).value.trim(); }
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function formatDuration(min){ if(!min) return '0分'; const h=Math.floor(min/60), m=min%60; return (h?h+'時間':'')+(m?m+'分':'')||'0分'; }
+
+function applySummaryCollapseUI(){
+  const wrap=document.getElementById('collapsible-area');
+  const tog=document.getElementById('summary-toggle');
+  if(!wrap || !tog) return;
+  if(summaryCollapsed){ wrap.classList.add('collapsed'); tog.textContent='＋'; }
+  else { wrap.classList.remove('collapsed'); tog.textContent='−'; }
+}
+function toggleSummary(){
+  summaryCollapsed = !summaryCollapsed;
+  localStorage.setItem('summaryCollapsed', summaryCollapsed?'1':'0');
+  applySummaryCollapseUI();
+  if(summaryCollapsed){
+    // 折りたたみ後、日付タブが見える位置までスクロール
+    setTimeout(()=>{
+      const sec = document.getElementById('timeline-section');
+      if(!sec) return;
+      const rect = sec.getBoundingClientRect();
+      const targetY = window.scrollY + rect.top - 12; // セクション上端の少し上で止める
+      window.scrollTo({top: Math.max(0,targetY), behavior:'smooth'});
+    }, 320); // CSSトランジション完了後
+  }
+}
 
 function switchTransport(mode){
   transportMode=mode;
@@ -458,7 +510,7 @@ function loadSample(){
 }
 
 function formatDateLabel(d){ if(!d) return '日付未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${w}）`; }
-function formatDateShort(d){ if(!d) return '未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getMonth()+1}/${dt.getDate()}(${w})`; }
+function formatDateShort(d){ if(!d) return '未設定'; const dt=new Date(d+'T00:00:00'); const w='日月火水木金土'[dt.getDay()]; return `${dt.getMonth()+1}/${dt.getDate()}(${w}) `; }
 
 function primaryTime(t){ return t.gatherTime || t.fromTime || t.sightStartTime || t.toTime || t.stayTime || t.departTime || ''; }
 function sortKey(t){ const d=t.date||'9999-99-99'; const tm=primaryTime(t)||'99:99'; return d+' '+tm; }
@@ -587,6 +639,7 @@ function selectDate(d){
   if(d!=='__all__'){ const el=document.getElementById('day-'+d); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
 
+window.toggleSummary=toggleSummary;
 window.switchTransport=switchTransport;
 window.setPersons=setPersons;
 window.addOrUpdate=addOrUpdate;
@@ -600,6 +653,7 @@ window.selectDate=selectDate;
 window.render=render;
 
 applyDefaultsToForm();
+applySummaryCollapseUI();
 </script>
 </body>
 </html>
