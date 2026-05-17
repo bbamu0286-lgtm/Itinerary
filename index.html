@@ -62,6 +62,8 @@
   .role-to{background:#38a169}
   .role-stay{background:#805ad5}
   .role-sight{background:#dd6b20}
+  .note-block{margin-top:10px;padding:10px 12px;background:#fffff0;border:1px solid #faf089;border-left:4px solid #ecc94b;border-radius:8px;font-size:13px;color:#5c4a08;white-space:pre-wrap;line-height:1.5}
+  .note-block .note-label{display:inline-block;font-size:11px;font-weight:700;color:#975a16;background:#fefcbf;padding:1px 8px;border-radius:4px;margin-right:6px;vertical-align:middle}
   .info-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:12px;background:white;border:1px solid #e2e8f0;color:#4a5568}
   .badge.sightTime{background:#fff5f7;color:#b83280;border-color:#fbb6ce}
@@ -186,6 +188,10 @@
             <input type="time" id="sightStartTime" title="観光開始時刻">
           </div>
           <div class="form-hint">観光時刻は最初の観光地に対する開始時刻です</div>
+        </div>
+        <div class="form-group">
+          <label>📝 メモ<span class="optional">（任意・改行可）</span></label>
+          <textarea id="note" placeholder="持ち物・注意点・予約番号など自由に記載"></textarea>
         </div>
         <div class="form-group">
           <label>🚄 移動手段<span class="optional">（任意）</span></label>
@@ -415,6 +421,7 @@ function addOrUpdate(e){
     stayTime: getVal('stayTime'),
     sights: document.getElementById('sights').value,
     sightStartTime: getVal('sightStartTime'),
+    note: document.getElementById('note').value,
     transport: getTransportValue(),
     duration: getNumber('duration'),
     sightTime: getNumber('sightTime'),
@@ -447,6 +454,7 @@ function editTrip(id){
   document.getElementById('stayTime').value=t.stayTime||'';
   document.getElementById('sights').value=t.sights||'';
   document.getElementById('sightStartTime').value=t.sightStartTime||'';
+  document.getElementById('note').value=t.note||'';
   const sel=document.getElementById('transportSelect');
   const opts=Array.from(sel.options).map(o=>o.value);
   if(opts.includes(t.transport)){ switchTransport('select'); sel.value=t.transport; }
@@ -491,8 +499,8 @@ function exportJSON(){
 
 function loadSample(){
   const sample=[
-    {id:'s1',date:'2026-05-01',gather:'東京駅 丸の内中央口',gatherTime:'08:30',from:'東京駅',fromTime:'09:00',to:'京都駅',toTime:'11:20',stay:'京都市内ホテル',stayTime:'17:00',sights:'清水寺\n伏見稲荷大社',sightStartTime:'13:00',transport:'🚄 新幹線',duration:140,sightTime:180,price:13320,sightFee:500,mealFee:3000,stayFee:12000,movePersons:2,sightPersons:2,mealPersons:2,stayPersons:2,createdAt:Date.now()},
-    {id:'s2',date:'2026-05-02',from:'京都駅',fromTime:'10:00',to:'大阪駅',toTime:'10:30',stay:'大阪梅田ホテル',stayTime:'18:00',sights:'道頓堀\n通天閣',sightStartTime:'13:30',transport:'🚆 電車',duration:30,sightTime:240,price:570,sightFee:800,mealFee:4500,stayFee:15000,movePersons:2,sightPersons:2,mealPersons:1,stayPersons:2,createdAt:Date.now()+1}
+    {id:'s1',date:'2026-05-01',gather:'東京駅 丸の内中央口',gatherTime:'08:30',from:'東京駅',fromTime:'09:00',to:'京都駅',toTime:'11:20',stay:'京都市内ホテル',stayTime:'17:00',sights:'清水寺\n伏見稲荷大社',sightStartTime:'13:00',note:'新幹線指定席。駅弁は東京駅で購入予定。',transport:'🚄 新幹線',duration:140,sightTime:180,price:13320,sightFee:500,mealFee:3000,stayFee:12000,movePersons:2,sightPersons:2,mealPersons:2,stayPersons:2,createdAt:Date.now()},
+    {id:'s2',date:'2026-05-02',from:'京都駅',fromTime:'10:00',to:'大阪駅',toTime:'10:30',stay:'大阪梅田ホテル',stayTime:'18:00',sights:'道頓堀\n通天閣',sightStartTime:'13:30',note:'チェックイン15時から。',transport:'🚆 電車',duration:30,sightTime:240,price:570,sightFee:800,mealFee:4500,stayFee:15000,movePersons:2,sightPersons:2,mealPersons:1,stayPersons:2,createdAt:Date.now()+1}
   ];
   bulkSave(sample).catch(err=>alert(err.message));
 }
@@ -520,6 +528,11 @@ function buildRouteLines(t){
     const suffixHtml = it.suffix ? `<span class="role-suffix">${it.suffix}</span>` : '';
     return `<div class="route-line"><span class="role-badge ${it.cls}">${it.label}</span><span>${escapeHtml(it.text)}</span>${suffixHtml}${timeHtml}</div>`;
   }).join('');
+}
+
+function buildNoteBlock(t){
+  if(!t.note || !t.note.trim()) return '';
+  return `<div class="note-block"><span class="note-label">📝 メモ</span>${escapeHtml(t.note.trim())}</div>`;
 }
 
 function feeBadgeText(amount, persons){
@@ -609,10 +622,12 @@ function render(){
       if(t.mealFee){ const tx=feeBadgeText(t.mealFee, t.mealPersons||t.persons||1); badges.push(`<span class="badge mealFee">🍽️ ${tx}</span>`); }
       if(t.stayFee){ const tx=feeBadgeText(t.stayFee, t.stayPersons||t.persons||1); badges.push(`<span class="badge stayFee"><span class="role-badge role-stay" style="width:16px;height:16px;font-size:10px">泊</span> ${tx}</span>`); }
       const travelHtml = buildTravelInfo(t);
+      const noteHtml = buildNoteBlock(t);
       html+=`<div class="timeline-item">
         <div class="dot"></div>
         <div class="card">
           <div class="route-lines">${buildRouteLines(t)||'<div class="route-line"><span style="color:#a0aec0;font-weight:400">（場所未入力）</span></div>'}</div>
+          ${noteHtml}
           ${travelHtml}
           ${badges.length?`<div class="info-row">${badges.join('')}</div>`:''}
           <div class="actions">
